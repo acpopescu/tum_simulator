@@ -187,7 +187,7 @@ void GazeboRosGps::Update()
   fix_.altitude  = reference_altitude_  + position.z;
   fix_.position_covariance[0] = 9.0;
   fix_.position_covariance[4] = 9.0;
-  fix_.position_covariance[9] = 9.0;
+  fix_.position_covariance[8] = 9.0;
   fix_.position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_APPROXIMATED;
   velocity_.vector.x =  cos(reference_heading_) * velocity.x + sin(reference_heading_) * velocity.y;
   velocity_.vector.y = -sin(reference_heading_) * velocity.x + cos(reference_heading_) * velocity.y;
