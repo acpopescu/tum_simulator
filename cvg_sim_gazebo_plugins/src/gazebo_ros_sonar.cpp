@@ -1,3 +1,4 @@
+
 //=================================================================================================
 // Copyright (c) 2012, Johannes Meyer, TU Darmstadt
 // All rights reserved.
@@ -51,43 +52,56 @@ GazeboRosSonar::~GazeboRosSonar()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load the controller
-void GazeboRosSonar::Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf)
+void GazeboRosSonar::Load(sensors::SensorPtr _sensorParam, sdf::ElementPtr _sdf)
 {
   // Get then name of the parent sensor
-  sensor_ = boost::dynamic_pointer_cast<sensors::RaySensor>(_sensor);
-  if (!sensor_)
+
+  sensor_ = std::dynamic_pointer_cast<sensors::RaySensor>(_sensorParam);
+  if (sensor_.get() == nullptr)
   {
-    gzthrow("GazeboRosSonar requires a Ray Sensor as its parent");
-    return;
+	  gzthrow("GazeboRosSonar requires a Sonar Sensor as its parent");
+	  return;
   }
 
   // Get the world name.
-  std::string worldName = sensor_->GetWorldName();
+  std::string worldName = sensor_->WorldName();
   world = physics::get_world(worldName);
 
   // load parameters
   if (!_sdf->HasElement("robotNamespace"))
-    namespace_.clear();
+  {
+	  namespace_.clear();
+  }
   else
-    namespace_ = _sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
+  {
+	  namespace_ = _sdf->GetElement("robotNamespace")->Get<std::string>() + "/";
+  }
 
   if (!_sdf->HasElement("frameId"))
-    frame_id_ = "";
+  {
+	  frame_id_ = "";
+  }
   else
-    frame_id_ = _sdf->GetElement("frameId")->Get<std::string>();
+  {
+	  frame_id_ = _sdf->GetElement("frameId")->Get<std::string>();
+  }
 
   if (!_sdf->HasElement("topicName"))
-    topic_ = "sonar";
+  {
+	  topic_ = "sonar";
+  }
   else
-    topic_ = _sdf->GetElement("topicName")->Get<std::string>();
+  {
+	  topic_ = _sdf->GetElement("topicName")->Get<std::string>();
+  }
 
   sensor_model_.Load(_sdf);
 
   range_.header.frame_id = frame_id_;
   range_.radiation_type = sensor_msgs::Range::ULTRASOUND;
-  range_.field_of_view = std::min(fabs((sensor_->GetAngleMax() - sensor_->GetAngleMin()).Radian()), fabs((sensor_->GetVerticalAngleMax() - sensor_->GetVerticalAngleMin()).Radian()));
-  range_.max_range = sensor_->GetRangeMax();
-  range_.min_range = sensor_->GetRangeMin();
+  range_.field_of_view = std::min(fabs((sensor_->AngleMax() - sensor_->AngleMin()).Radian()), fabs((sensor_->VerticalAngleMax() - sensor_->VerticalAngleMin()).Radian()));
+  range_.max_range = sensor_->RangeMax();
+  range_.min_range = sensor_->RangeMin();
 
   // start ros node
   if (!ros::isInitialized())
@@ -101,7 +115,7 @@ void GazeboRosSonar::Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf)
   publisher_ = node_handle_->advertise<sensor_msgs::Range>(topic_, 1);
 
   Reset();
-  updateConnection = sensor_->GetLaserShape()->ConnectNewLaserScans(
+  updateConnection = sensor_->LaserShape()->ConnectNewLaserScans(
         boost::bind(&GazeboRosSonar::Update, this));
 
   // activate RaySensor
@@ -122,24 +136,39 @@ void GazeboRosSonar::Update()
 //  if (last_time + updatePeriod > sim_time) return;
 
   // activate RaySensor if it is not yet active
-  if (!sensor_->IsActive()) sensor_->SetActive(true);
+  if (!sensor_->IsActive())
+  {
+	  sensor_->SetActive(true);
+  }
 
   range_.header.stamp.sec  = (world->GetSimTime()).sec;
   range_.header.stamp.nsec = (world->GetSimTime()).nsec;
 
   // find ray with minimal range
   range_.range = std::numeric_limits<sensor_msgs::Range::_range_type>::max();
-  int num_ranges = sensor_->GetLaserShape()->GetSampleCount() * sensor_->GetLaserShape()->GetVerticalSampleCount();
-  for(int i = 0; i < num_ranges; ++i) {
-    double ray = sensor_->GetLaserShape()->GetRange(i);
-    if (ray < range_.range) range_.range = ray;
+  int num_ranges = sensor_->LaserShape()->GetSampleCount() * sensor_->LaserShape()->GetVerticalSampleCount();
+  for(int i = 0; i < num_ranges; ++i)
+  {
+	  double ray = sensor_->LaserShape()->GetRange(i);
+	  if (ray < range_.range)
+	  {
+		  range_.range = ray;
+	  }
   }
 
   // add Gaussian noise (and limit to min/max range)
-  if (range_.range < range_.max_range) {
+  if (range_.range < range_.max_range)
+  {
     range_.range += sensor_model_.update(dt);
-    if (range_.range < range_.min_range) range_.range = range_.min_range;
-    if (range_.range > range_.max_range) range_.range = range_.max_range;
+    if (range_.range < range_.min_range)
+	{
+		range_.range = range_.min_range;
+	}
+	
+    if (range_.range > range_.max_range)
+	{
+		range_.range = range_.max_range;
+	}
   }
 
   publisher_.publish(range_);

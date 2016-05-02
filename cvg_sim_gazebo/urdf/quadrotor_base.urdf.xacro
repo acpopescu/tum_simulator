@@ -11,6 +11,7 @@ xmlns:xacro="http://ros.org/wiki/xacro"
 
   <!-- Main quadrotor link -->
   <xacro:macro name="quadrotor_base_macro">
+	<link name="dummy_root"/>
     <link name="base_link">
       <inertial>
         <mass value="1.477" />
@@ -33,7 +34,10 @@ xmlns:xacro="http://ros.org/wiki/xacro"
       </collision>
     </link>
 
-
+	<joint name="dummy_to_base" type="fixed">
+	  <parent link="dummy_root"/>
+	  <child link="base_link"/>
+	</joint>
 
     <gazebo reference="base_link">
       <turnGravityOff>false</turnGravityOff>

@@ -107,6 +107,7 @@ include_directories(
 )
 
 ## Declare a cpp library
+add_definitions(-std=c++11)
 add_library(diffdrive_plugin_6w src/diffdrive_plugin_6w.cpp)
 target_link_libraries(diffdrive_plugin_6w ${Boost_LIBRARIES})
 
