@@ -1,8 +1,8 @@
 tum_simulator on Kinetic Kame + gazebo-7.0.0
 =============
 
-I've updated the tum_simulator package to work with ROS Kinetic Kame and gazebo 7.0.0 from the newly released ubuntu 16.0.4. 
-Make sure you have the ardrone_autonomy,joy and joystick_drivers ROS packages installed.
+I've updated the tum_simulator package to work with ROS Kinetic Kame and gazebo 7.0.0 from the newly released Ubuntu 16.0.4. 
+Make sure you have the `ardrone_autonomy`,`joy` and `joystick_drivers` ROS packages installed.
 
 These packages are used to simulate the flying robot Ardrone in ROS environment using gazebo simulator. Totally they are 4 packages. Their functions are descript as below:
 
