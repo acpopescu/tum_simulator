@@ -1,5 +1,8 @@
-tum_simulator on Indigo
+tum_simulator on Kinetic Kame + gazebo-7.0.0
 =============
+
+I've updated the tum_simulator package to work with ROS Kinetic Kame and gazebo 7.0.0 from the newly released ubuntu 16.0.4. 
+Make sure you have the ardrone_autonomy,joy and joystick_drivers ROS packages installed.
 
 These packages are used to simulate the flying robot Ardrone in ROS environment using gazebo simulator. Totally they are 4 packages. Their functions are descript as below:
 
@@ -18,17 +21,17 @@ How to install the simulator:
 1. Create a workspace for the simulator
 
     ```
-    mkdir -p ~/tum_simulator_ws/src
-    cd  ~/tum_simulator_ws/src
+    mkdir -p ~/ardrone_ws/src
+    cd  ~/ardrone_ws/src
     catkin_init_workspace
     ```
 2. Download dependencies
 
     ```
-    git clone https://github.com/AutonomyLab/ardrone_autonomy.git	# The AR.Drone ROS driver
-    git clone https://github.com/tum-vision/tum_simulator.git
+    git clone https://github.com/acpopescu/ardrone_joystick.git	# The AR.Drone joystick Driver
+    git clone https://github.com/acpopescu/tum_simulator.git
     cd ..
-    rosdep install --from-paths src --ignore-src --rosdistro indigo -y
+    rosdep install --from-paths src --ignore-src --rosdistro kinetic -y
     ```
 3. Build the simulator
 
@@ -47,3 +50,9 @@ How to run a simulation:
     ```
     roslaunch cvg_sim_gazebo ardrone_testworld.launch
     ```
+
+2. Run the joystick control node
+
+   ```
+   roslaunch ardrone_joystick teleop.launch
+   ```
